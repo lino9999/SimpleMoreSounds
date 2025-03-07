@@ -1,0 +1,55 @@
+chat_sound:
+  enabled: true
+  sound: "entity.item.pickup"
+  volume: 1.0
+  pitch: 1.0
+
+item_drop_sound:
+  enabled: true
+  sound: "entity.arrow.shoot"
+  volume: 0.5
+  pitch: 1.5
+
+death_sound:
+  enabled: true
+  sound: "entity.wither.death"
+  volume: 1.0
+  pitch: 0.5
+
+join_sound:
+  enabled: true
+  sound: "entity.player.levelup"
+  volume: 1.0
+  pitch: 1.0
+
+quit_sound:
+  enabled: true
+  sound: "entity.player.burp"
+  volume: 1.0
+  pitch: 1.0
+
+command_sound:
+  enabled: true
+  sound: "block.note_block.bass"
+  volume: 0.8
+  pitch: 1.2
+
+hotbar_switch_sound:
+  enabled: true
+  sound: "ui.button.click"
+  volume: 0.3
+  pitch: 2.0
+
+inventory_close_sound:
+  enabled: true
+  sound: "block.barrel.close"
+  volume: 1.0
+  pitch: 1.0
+
+first_join_sound:
+  enabled: true
+  sound: "event.raid.horn"
+  volume: 50.0
+  pitch: 1.0
+
+# Use other sounds here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
