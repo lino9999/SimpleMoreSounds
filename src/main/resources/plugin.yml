@@ -1,5 +1,5 @@
 name: SimpleMoreSounds
-version: '1.7'
+version: '2.0'
 main: com.Lino.simpleMoreSounds.SimpleMoreSounds
 api-version: '1.21'
 authors: [Lino9999]
