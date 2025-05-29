@@ -1,17 +1,21 @@
 package com.Lino.simpleMoreSounds;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
-import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -22,6 +26,7 @@ import java.util.logging.Level;
 public class SimpleMoreSounds extends JavaPlugin implements Listener {
 
     private enum SoundKey {
+        // Suoni originali
         CHAT("chat_sound"),
         ITEM_DROP("item_drop_sound"),
         DEATH("death_sound"),
@@ -30,7 +35,37 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         QUIT("quit_sound"),
         COMMAND("command_sound"),
         HOTBAR_SWITCH("hotbar_switch_sound"),
-        INVENTORY_CLOSE("inventory_close_sound");
+        INVENTORY_CLOSE("inventory_close_sound"),
+
+        // Nuovi suoni - Combattimento
+        PLAYER_HURT("player_hurt_sound"),
+        CRITICAL_HIT("critical_hit_sound"),
+        ARROW_SHOOT("arrow_shoot_sound"),
+        MOB_KILL("mob_kill_sound"),
+        PLAYER_KILL("player_kill_sound"),
+
+        // Nuovi suoni - Interazioni
+        FURNACE_USE("furnace_use_sound"),
+        CRAFTING_TABLE_USE("crafting_table_use_sound"),
+        ANVIL_USE("anvil_use_sound"),
+        ENCHANTING_TABLE_USE("enchanting_table_use_sound"),
+
+        // Nuovi suoni - Pesca
+        FISHING_CAST("fishing_cast_sound"),
+        FISHING_CATCH("fishing_catch_sound"),
+
+        // Nuovi suoni - Vari
+        TOOL_BREAK("tool_break_sound"),
+        PLAYER_RESPAWN("player_respawn_sound"),
+        TELEPORT("teleport_sound"),
+
+        // Nuovi suoni - Inventario
+        INVENTORY_FULL("inventory_full_sound"),
+        SHULKER_OPEN("shulker_open_sound"),
+
+        // Nuovi suoni - Progressi
+        ADVANCEMENT_COMPLETE("advancement_complete_sound"),
+        EXPERIENCE_GAIN("experience_gain_sound");
 
         private final String configKey;
 
@@ -76,9 +111,9 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
             saveDefaultConfig();
             loadSoundSettings();
             getServer().getPluginManager().registerEvents(this, this);
-            getLogger().info("SimpleMoreSounds plugin abilitato con successo!");
+            getLogger().info("SimpleMoreSounds plugin successfully enabled!");
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Errore durante l'abilitazione del plugin", e);
+            getLogger().log(Level.SEVERE, "Error enabling plugin", e);
             getServer().getPluginManager().disablePlugin(this);
         }
     }
@@ -88,20 +123,20 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         if (configReloadTask != null && !configReloadTask.isCancelled()) {
             configReloadTask.cancel();
         }
-        getLogger().info("SimpleMoreSounds plugin disabilitato.");
+        getLogger().info("SimpleMoreSounds plugin disabled.");
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if ("soundsreload".equals(command.getName())) {
             if (!sender.hasPermission("simplemoresounds.reload")) {
-                sender.sendMessage("§cNon hai il permesso per questo comando!");
+                sender.sendMessage("§cNo access to this cmd!");
                 return true;
             }
 
             // Async config reload to prevent blocking
             if (configReloadTask != null && !configReloadTask.isCancelled()) {
-                sender.sendMessage("§cRicaricamento già in corso...");
+                sender.sendMessage("§cReloading already in progress...");
                 return true;
             }
 
@@ -110,13 +145,13 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
                     reloadConfig();
                     Bukkit.getScheduler().runTask(this, () -> {
                         loadSoundSettings();
-                        sender.sendMessage("§aConfig ricaricata con successo!");
+                        sender.sendMessage("§aConfig reloaded successfully!");
                         configReloadTask = null;
                     });
                 } catch (Exception e) {
-                    getLogger().log(Level.WARNING, "Errore durante il ricaricamento della config", e);
+                    getLogger().log(Level.WARNING, "Error reloading config", e);
                     Bukkit.getScheduler().runTask(this, () -> {
-                        sender.sendMessage("§cErrore durante il ricaricamento della config!");
+                        sender.sendMessage("§cError reloading config!");
                         configReloadTask = null;
                     });
                 }
@@ -151,7 +186,7 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
                 Bukkit.getOnlinePlayers().parallelStream().forEach(player -> playSound(player, settings));
             }
         } catch (Exception e) {
-            getLogger().log(Level.WARNING, "Errore durante la riproduzione del suono " + key, e);
+            getLogger().log(Level.WARNING, "Error while playing sound " + key, e);
         }
     }
 
@@ -165,7 +200,7 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
                 player.playSound(player.getLocation(), settings.soundString, settings.volume, settings.pitch);
             }
         } catch (Exception e) {
-            getLogger().log(Level.WARNING, "Errore riproduzione suono per " + player.getName(), e);
+            getLogger().log(Level.WARNING, "Sound playback error for " + player.getName(), e);
         }
     }
 
@@ -217,6 +252,150 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (event.getInventory().getType() == InventoryType.CRAFTING && event.getPlayer() instanceof Player) {
             playConfiguredSound(SoundKey.INVENTORY_CLOSE, (Player) event.getPlayer());
+        }
+        // Shulker box detection
+        else if (event.getInventory().getType() == InventoryType.SHULKER_BOX && event.getPlayer() instanceof Player) {
+            playConfiguredSound(SoundKey.SHULKER_OPEN, (Player) event.getPlayer());
+        }
+    }
+
+    // ===== NUOVI EVENT HANDLERS =====
+
+    // Combattimento
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            playConfiguredSound(SoundKey.PLAYER_HURT, (Player) event.getEntity());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        Entity damager = event.getDamager();
+        Entity victim = event.getEntity();
+
+        // Colpo critico (quando un giocatore fa danno saltando)
+        if (damager instanceof Player) {
+            Player attacker = (Player) damager;
+            if (attacker.getFallDistance() > 0 && !attacker.isOnGround() && attacker.getAttackCooldown() > 0.9f) {
+                playConfiguredSound(SoundKey.CRITICAL_HIT, attacker);
+            }
+
+            // Kill sounds
+            if (event.getFinalDamage() >= ((LivingEntity) victim).getHealth()) {
+                if (victim instanceof Player) {
+                    playConfiguredSound(SoundKey.PLAYER_KILL, attacker);
+                } else if (victim instanceof Monster || victim instanceof Animals) {
+                    playConfiguredSound(SoundKey.MOB_KILL, attacker);
+                }
+            }
+        }
+
+        // Arrow shoot
+        if (damager instanceof Arrow && ((Arrow) damager).getShooter() instanceof Player) {
+            playConfiguredSound(SoundKey.ARROW_SHOOT, (Player) ((Arrow) damager).getShooter());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityShootBow(EntityShootBowEvent event) {
+        if (event.getEntity() instanceof Player) {
+            playConfiguredSound(SoundKey.ARROW_SHOOT, (Player) event.getEntity());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerItemDamage(PlayerItemDamageEvent event) {
+        ItemStack item = event.getItem();
+        if (item != null && item.getDurability() + event.getDamage() >= item.getType().getMaxDurability()) {
+            playConfiguredSound(SoundKey.TOOL_BREAK, event.getPlayer());
+        }
+    }
+
+    // Respawn
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        // Delay per assicurarsi che il player sia completamente respawnato
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            playConfiguredSound(SoundKey.PLAYER_RESPAWN, event.getPlayer());
+        }, 1L);
+    }
+
+    // Teleport
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.UNKNOWN) {
+            playConfiguredSound(SoundKey.TELEPORT, event.getPlayer());
+        }
+    }
+
+    // Interazioni con blocchi
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        Block block = event.getClickedBlock();
+        if (block == null) return;
+
+        Material type = block.getType();
+        Player player = event.getPlayer();
+
+        switch (type) {
+            case FURNACE:
+            case BLAST_FURNACE:
+            case SMOKER:
+                playConfiguredSound(SoundKey.FURNACE_USE, player);
+                break;
+            case CRAFTING_TABLE:
+                playConfiguredSound(SoundKey.CRAFTING_TABLE_USE, player);
+                break;
+            case ANVIL:
+            case CHIPPED_ANVIL:
+            case DAMAGED_ANVIL:
+                playConfiguredSound(SoundKey.ANVIL_USE, player);
+                break;
+            case ENCHANTING_TABLE:
+                playConfiguredSound(SoundKey.ENCHANTING_TABLE_USE, player);
+                break;
+        }
+    }
+
+    // Pesca
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerFish(PlayerFishEvent event) {
+        switch (event.getState()) {
+            case FISHING:
+                playConfiguredSound(SoundKey.FISHING_CAST, event.getPlayer());
+                break;
+            case CAUGHT_FISH:
+            case CAUGHT_ENTITY:
+                playConfiguredSound(SoundKey.FISHING_CATCH, event.getPlayer());
+                break;
+        }
+    }
+
+    // Advancement
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerAdvancement(PlayerAdvancementDoneEvent event) {
+        playConfiguredSound(SoundKey.ADVANCEMENT_COMPLETE, event.getPlayer());
+    }
+
+    // Experience
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerExpChange(PlayerExpChangeEvent event) {
+        if (event.getAmount() > 0) {
+            playConfiguredSound(SoundKey.EXPERIENCE_GAIN, event.getPlayer());
+        }
+    }
+
+    // Inventario pieno (controllato quando prova a raccogliere un oggetto)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerAttemptPickup(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player)) return;
+
+        Player player = (Player) event.getEntity();
+        if (player.getInventory().firstEmpty() == -1) {
+            playConfiguredSound(SoundKey.INVENTORY_FULL, player);
         }
     }
 }
