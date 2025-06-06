@@ -22,6 +22,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 public class SimpleMoreSounds extends JavaPlugin implements Listener {
 
@@ -51,7 +52,9 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         INVENTORY_FULL("inventory_full_sound"),
         SHULKER_OPEN("shulker_open_sound"),
         ADVANCEMENT_COMPLETE("advancement_complete_sound"),
-        EXPERIENCE_GAIN("experience_gain_sound");
+        EXPERIENCE_GAIN("experience_gain_sound"),
+        MENTION("mention_sound"),
+        PRIVATE_MESSAGE("private_message_sound");
 
         private final String configKey;
 
@@ -184,9 +187,97 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         }
     }
 
+    private boolean isPlayerMentioned(String message, String playerName) {
+        // Controlla se il nome del giocatore è menzionato nel messaggio
+        // Pattern per @nomeutente o semplicemente nomeutente
+        String lowerMessage = message.toLowerCase();
+        String lowerPlayerName = playerName.toLowerCase();
+
+        // Controlla menzione con @
+        if (lowerMessage.contains("@" + lowerPlayerName)) {
+            return true;
+        }
+
+        // Controlla se il nome è presente come parola intera (non parte di altre parole)
+        Pattern pattern = Pattern.compile("\\b" + Pattern.quote(lowerPlayerName) + "\\b", Pattern.CASE_INSENSITIVE);
+        return pattern.matcher(message).find();
+    }
+
+    private boolean isPrivateMessage(String message) {
+        // Controlla se il messaggio è un messaggio privato (vanilla o EssentialsX)
+        String lowerMessage = message.toLowerCase();
+
+        // Patterns comuni per messaggi privati
+        return lowerMessage.startsWith("whispers to you:") ||
+                lowerMessage.startsWith("whispers:") ||
+                lowerMessage.contains(" whispers to you:") ||
+                lowerMessage.contains(" whispers:") ||
+                lowerMessage.startsWith("[") && lowerMessage.contains("-> me]") ||
+                lowerMessage.startsWith("[") && lowerMessage.contains("→ me]") ||
+                lowerMessage.contains(" -> you:") ||
+                lowerMessage.contains(" → you:") ||
+                lowerMessage.contains("tells you:") ||
+                lowerMessage.contains(" tells you:");
+    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        Bukkit.getScheduler().runTask(this, () -> playConfiguredSound(SoundKey.CHAT, null));
+        Bukkit.getScheduler().runTask(this, () -> {
+            // Suono chat generale
+            playConfiguredSound(SoundKey.CHAT, null);
+
+            // Controlla menzioni per ogni giocatore online
+            String message = event.getMessage();
+            String senderName = event.getPlayer().getName();
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                // Non riprodurre il suono di menzione per chi ha scritto il messaggio
+                if (!player.getName().equals(senderName) && isPlayerMentioned(message, player.getName())) {
+                    playConfiguredSound(SoundKey.MENTION, player);
+                }
+            }
+        });
+    }
+
+    // Event handler per intercettare messaggi privati (vanilla e plugin)
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerReceiveMessage(PlayerChatEvent event) {
+        // Questo evento potrebbe non esistere in tutte le versioni
+        // Viene utilizzato come backup per alcuni plugin di chat
+        String message = event.getMessage();
+        Player player = event.getPlayer();
+
+        if (isPrivateMessage(message)) {
+            playConfiguredSound(SoundKey.PRIVATE_MESSAGE, player);
+        }
+    }
+
+    // Event handler alternativo per intercettare comandi di messaggi privati
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerCommandForPrivateMessage(PlayerCommandPreprocessEvent event) {
+        String command = event.getMessage().toLowerCase();
+        String[] args = command.split(" ");
+
+        if (args.length >= 3) {
+            String cmd = args[0];
+            // Controlla comandi comuni per messaggi privati
+            if (cmd.equals("/msg") || cmd.equals("/tell") || cmd.equals("/whisper") ||
+                    cmd.equals("/w") || cmd.equals("/m") || cmd.equals("/pm") ||
+                    cmd.equals("/message") || cmd.equals("/essentials:msg") ||
+                    cmd.equals("/essentials:tell") || cmd.equals("/essentials:whisper")) {
+
+                String targetPlayerName = args[1];
+                Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+
+                if (targetPlayer != null && targetPlayer.isOnline()) {
+                    // Riproduce il suono al destinatario del messaggio privato
+                    playConfiguredSound(SoundKey.PRIVATE_MESSAGE, targetPlayer);
+                }
+            }
+        }
+
+        // Suono comando generale
+        playConfiguredSound(SoundKey.COMMAND, event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -218,7 +309,8 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
-        playConfiguredSound(SoundKey.COMMAND, event.getPlayer());
+        // Questo è già gestito sopra per i messaggi privati
+        // playConfiguredSound(SoundKey.COMMAND, event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
