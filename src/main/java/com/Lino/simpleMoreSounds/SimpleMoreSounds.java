@@ -188,26 +188,20 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
     }
 
     private boolean isPlayerMentioned(String message, String playerName) {
-        // Controlla se il nome del giocatore è menzionato nel messaggio
-        // Pattern per @nomeutente o semplicemente nomeutente
         String lowerMessage = message.toLowerCase();
         String lowerPlayerName = playerName.toLowerCase();
 
-        // Controlla menzione con @
         if (lowerMessage.contains("@" + lowerPlayerName)) {
             return true;
         }
 
-        // Controlla se il nome è presente come parola intera (non parte di altre parole)
         Pattern pattern = Pattern.compile("\\b" + Pattern.quote(lowerPlayerName) + "\\b", Pattern.CASE_INSENSITIVE);
         return pattern.matcher(message).find();
     }
 
     private boolean isPrivateMessage(String message) {
-        // Controlla se il messaggio è un messaggio privato (vanilla o EssentialsX)
         String lowerMessage = message.toLowerCase();
 
-        // Patterns comuni per messaggi privati
         return lowerMessage.startsWith("whispers to you:") ||
                 lowerMessage.startsWith("whispers:") ||
                 lowerMessage.contains(" whispers to you:") ||
@@ -223,15 +217,12 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Bukkit.getScheduler().runTask(this, () -> {
-            // Suono chat generale
             playConfiguredSound(SoundKey.CHAT, null);
 
-            // Controlla menzioni per ogni giocatore online
             String message = event.getMessage();
             String senderName = event.getPlayer().getName();
 
             for (Player player : Bukkit.getOnlinePlayers()) {
-                // Non riprodurre il suono di menzione per chi ha scritto il messaggio
                 if (!player.getName().equals(senderName) && isPlayerMentioned(message, player.getName())) {
                     playConfiguredSound(SoundKey.MENTION, player);
                 }
@@ -239,11 +230,8 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         });
     }
 
-    // Event handler per intercettare messaggi privati (vanilla e plugin)
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerReceiveMessage(PlayerChatEvent event) {
-        // Questo evento potrebbe non esistere in tutte le versioni
-        // Viene utilizzato come backup per alcuni plugin di chat
         String message = event.getMessage();
         Player player = event.getPlayer();
 
@@ -252,7 +240,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         }
     }
 
-    // Event handler alternativo per intercettare comandi di messaggi privati
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerCommandForPrivateMessage(PlayerCommandPreprocessEvent event) {
         String command = event.getMessage().toLowerCase();
@@ -260,7 +247,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
 
         if (args.length >= 3) {
             String cmd = args[0];
-            // Controlla comandi comuni per messaggi privati
             if (cmd.equals("/msg") || cmd.equals("/tell") || cmd.equals("/whisper") ||
                     cmd.equals("/w") || cmd.equals("/m") || cmd.equals("/pm") ||
                     cmd.equals("/message") || cmd.equals("/essentials:msg") ||
@@ -270,13 +256,11 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
                 Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
 
                 if (targetPlayer != null && targetPlayer.isOnline()) {
-                    // Riproduce il suono al destinatario del messaggio privato
                     playConfiguredSound(SoundKey.PRIVATE_MESSAGE, targetPlayer);
                 }
             }
         }
 
-        // Suono comando generale
         playConfiguredSound(SoundKey.COMMAND, event.getPlayer());
     }
 

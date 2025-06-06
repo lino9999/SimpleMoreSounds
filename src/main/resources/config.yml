@@ -9,16 +9,26 @@
 # - volume: 0.0-1.0 (sound volume)
 # - pitch: 0.5-2.0 (sound pitch)
 
-# ========================================
-# ORIGINAL SOUNDS
-# ========================================
-
 # Sound when a player types in chat
 chat_sound:
   enabled: true
   sound: "ENTITY_ITEM_PICKUP"
   volume: 0.5
   pitch: 1.0
+
+# Sound when a player tag someone in chat (Player nickname)
+mention_sound:
+  enabled: true
+  sound: "BLOCK_NOTE_BLOCK_CHIME"
+  volume: 1.0
+  pitch: 1.5
+
+# Sound when a player send a msg (/msg, /tell..)
+private_message_sound:
+  enabled: true
+  sound: "BLOCK_NOTE_BLOCK_BELL"
+  volume: 1.0
+  pitch: 1.2
 
 # Sound when a player drops an item
 item_drop_sound:
@@ -218,18 +228,6 @@ experience_gain_sound:
   sound: "ENTITY_EXPERIENCE_ORB_PICKUP"
   volume: 0.3
   pitch: 1.0
-
-mention_sound:
-  enabled: true
-  sound: "BLOCK_NOTE_BLOCK_CHIME"
-  volume: 1.0
-  pitch: 1.5
-
-private_message_sound:
-  enabled: true
-  sound: "BLOCK_NOTE_BLOCK_BELL"
-  volume: 1.0
-  pitch: 1.2
 
   #          SOUND LIST:
   # https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
