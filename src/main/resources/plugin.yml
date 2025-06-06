@@ -1,8 +1,8 @@
 name: SimpleMoreSounds
-version: '2.0'
+version: '2.2'
 main: com.Lino.simpleMoreSounds.SimpleMoreSounds
 api-version: '1.21'
-authors: [Lino9999]
+authors: Lino9999
 commands:
   soundsreload:
     description: Reload plugin configuration
