@@ -26,7 +26,6 @@ import java.util.logging.Level;
 public class SimpleMoreSounds extends JavaPlugin implements Listener {
 
     private enum SoundKey {
-        // Suoni originali
         CHAT("chat_sound"),
         ITEM_DROP("item_drop_sound"),
         DEATH("death_sound"),
@@ -36,34 +35,22 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         COMMAND("command_sound"),
         HOTBAR_SWITCH("hotbar_switch_sound"),
         INVENTORY_CLOSE("inventory_close_sound"),
-
-        // Nuovi suoni - Combattimento
         PLAYER_HURT("player_hurt_sound"),
         CRITICAL_HIT("critical_hit_sound"),
         ARROW_SHOOT("arrow_shoot_sound"),
         MOB_KILL("mob_kill_sound"),
         PLAYER_KILL("player_kill_sound"),
-
-        // Nuovi suoni - Interazioni
         FURNACE_USE("furnace_use_sound"),
         CRAFTING_TABLE_USE("crafting_table_use_sound"),
         ANVIL_USE("anvil_use_sound"),
         ENCHANTING_TABLE_USE("enchanting_table_use_sound"),
-
-        // Nuovi suoni - Pesca
         FISHING_CAST("fishing_cast_sound"),
         FISHING_CATCH("fishing_catch_sound"),
-
-        // Nuovi suoni - Vari
         TOOL_BREAK("tool_break_sound"),
         PLAYER_RESPAWN("player_respawn_sound"),
         TELEPORT("teleport_sound"),
-
-        // Nuovi suoni - Inventario
         INVENTORY_FULL("inventory_full_sound"),
         SHULKER_OPEN("shulker_open_sound"),
-
-        // Nuovi suoni - Progressi
         ADVANCEMENT_COMPLETE("advancement_complete_sound"),
         EXPERIENCE_GAIN("experience_gain_sound");
 
@@ -88,15 +75,13 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         SoundSettings(boolean enabled, String soundString, float volume, float pitch) {
             this.enabled = enabled;
             this.soundString = soundString;
-            this.volume = Math.max(0.0f, Math.min(1.0f, volume)); // Clamp volume between 0 and 1
-            this.pitch = Math.max(0.5f, Math.min(2.0f, pitch));   // Clamp pitch between 0.5 and 2
+            this.volume = Math.max(0.0f, Math.min(1.0f, volume));
+            this.pitch = Math.max(0.5f, Math.min(2.0f, pitch));
 
-            // Try to parse as enum, fallback to string
             Sound parsedSound = null;
             try {
                 parsedSound = Sound.valueOf(soundString.toUpperCase().replace('.', '_'));
             } catch (IllegalArgumentException ignored) {
-                // Will use string version
             }
             this.sound = parsedSound;
         }
@@ -134,7 +119,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
                 return true;
             }
 
-            // Async config reload to prevent blocking
             if (configReloadTask != null && !configReloadTask.isCancelled()) {
                 sender.sendMessage("§cReloading already in progress...");
                 return true;
@@ -182,7 +166,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
             if (specificPlayer != null) {
                 playSound(specificPlayer, settings);
             } else {
-                // Use a more efficient approach for broadcasting
                 Bukkit.getOnlinePlayers().parallelStream().forEach(player -> playSound(player, settings));
             }
         } catch (Exception e) {
@@ -193,10 +176,8 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
     private void playSound(Player player, SoundSettings settings) {
         try {
             if (settings.sound != null) {
-                // Use enum version for better performance
                 player.playSound(player.getLocation(), settings.sound, settings.volume, settings.pitch);
             } else {
-                // Fallback to string version
                 player.playSound(player.getLocation(), settings.soundString, settings.volume, settings.pitch);
             }
         } catch (Exception e) {
@@ -206,7 +187,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
-        // Schedule on main thread since we're in async context
         Bukkit.getScheduler().runTask(this, () -> playConfiguredSound(SoundKey.CHAT, null));
     }
 
@@ -223,7 +203,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        // Schedule with slight delay to ensure player is fully loaded
         Bukkit.getScheduler().runTaskLater(this, () -> {
             if (!player.hasPlayedBefore()) {
                 playConfiguredSound(SoundKey.FIRST_JOIN, null);
@@ -252,16 +231,11 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (event.getInventory().getType() == InventoryType.CRAFTING && event.getPlayer() instanceof Player) {
             playConfiguredSound(SoundKey.INVENTORY_CLOSE, (Player) event.getPlayer());
-        }
-        // Shulker box detection
-        else if (event.getInventory().getType() == InventoryType.SHULKER_BOX && event.getPlayer() instanceof Player) {
+        } else if (event.getInventory().getType() == InventoryType.SHULKER_BOX && event.getPlayer() instanceof Player) {
             playConfiguredSound(SoundKey.SHULKER_OPEN, (Player) event.getPlayer());
         }
     }
 
-    // ===== NUOVI EVENT HANDLERS =====
-
-    // Combattimento
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
         if (event.getEntity() instanceof Player) {
@@ -274,14 +248,12 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         Entity damager = event.getDamager();
         Entity victim = event.getEntity();
 
-        // Colpo critico (quando un giocatore fa danno saltando)
         if (damager instanceof Player) {
             Player attacker = (Player) damager;
             if (attacker.getFallDistance() > 0 && !attacker.isOnGround() && attacker.getAttackCooldown() > 0.9f) {
                 playConfiguredSound(SoundKey.CRITICAL_HIT, attacker);
             }
 
-            // Kill sounds
             if (event.getFinalDamage() >= ((LivingEntity) victim).getHealth()) {
                 if (victim instanceof Player) {
                     playConfiguredSound(SoundKey.PLAYER_KILL, attacker);
@@ -291,7 +263,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
             }
         }
 
-        // Arrow shoot
         if (damager instanceof Arrow && ((Arrow) damager).getShooter() instanceof Player) {
             playConfiguredSound(SoundKey.ARROW_SHOOT, (Player) ((Arrow) damager).getShooter());
         }
@@ -312,16 +283,13 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         }
     }
 
-    // Respawn
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        // Delay per assicurarsi che il player sia completamente respawnato
         Bukkit.getScheduler().runTaskLater(this, () -> {
             playConfiguredSound(SoundKey.PLAYER_RESPAWN, event.getPlayer());
         }, 1L);
     }
 
-    // Teleport
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (event.getCause() != PlayerTeleportEvent.TeleportCause.UNKNOWN) {
@@ -329,7 +297,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         }
     }
 
-    // Interazioni con blocchi
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -360,7 +327,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         }
     }
 
-    // Pesca
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerFish(PlayerFishEvent event) {
         switch (event.getState()) {
@@ -374,13 +340,11 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         }
     }
 
-    // Advancement
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerAdvancement(PlayerAdvancementDoneEvent event) {
         playConfiguredSound(SoundKey.ADVANCEMENT_COMPLETE, event.getPlayer());
     }
 
-    // Experience
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerExpChange(PlayerExpChangeEvent event) {
         if (event.getAmount() > 0) {
@@ -388,7 +352,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         }
     }
 
-    // Inventario pieno (controllato quando prova a raccogliere un oggetto)
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerAttemptPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player)) return;
