@@ -35,7 +35,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
         COMMAND("command_sound"),
         HOTBAR_SWITCH("hotbar_switch_sound"),
         INVENTORY_CLOSE("inventory_close_sound"),
-        PLAYER_HURT("player_hurt_sound"),
         CRITICAL_HIT("critical_hit_sound"),
         ARROW_SHOOT("arrow_shoot_sound"),
         MOB_KILL("mob_kill_sound"),
@@ -233,13 +232,6 @@ public class SimpleMoreSounds extends JavaPlugin implements Listener {
             playConfiguredSound(SoundKey.INVENTORY_CLOSE, (Player) event.getPlayer());
         } else if (event.getInventory().getType() == InventoryType.SHULKER_BOX && event.getPlayer() instanceof Player) {
             playConfiguredSound(SoundKey.SHULKER_OPEN, (Player) event.getPlayer());
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
-            playConfiguredSound(SoundKey.PLAYER_HURT, (Player) event.getEntity());
         }
     }
 

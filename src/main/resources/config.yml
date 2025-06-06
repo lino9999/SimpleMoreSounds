@@ -80,24 +80,17 @@ inventory_close_sound:
 # COMBAT SOUNDS
 # ========================================
 
-# Sound when a player takes damage
-player_hurt_sound:
-  enabled: true
-  sound: "ENTITY_PLAYER_HURT"
-  volume: 0.8
-  pitch: 1.0
-
 # Sound when a player lands a critical hit
 critical_hit_sound:
   enabled: true
-  sound: "BLOCK_BAMBOO_WOOD_HIT"
+  sound: "BLOCK_ENCHANTMENT_TABLE_USE"
   volume: 1.0
   pitch: 1.2
 
 # Sound when a player shoots an arrow
 arrow_shoot_sound:
   enabled: true
-  sound: "BLOCK_BAMBOO_WOOD_HIT"
+  sound: "ENCHANT_THORNS_HIT"
   volume: 1.7
   pitch: 1.0
 
@@ -172,7 +165,7 @@ fishing_catch_sound:
 # Sound when a tool breaks
 tool_break_sound:
   enabled: true
-  sound: "ENTITY_ITEM_BREAK"
+  sound: "UI_TOAST_CHALLENGE_COMPLETE"
   volume: 1.0
   pitch: 0.8
 
@@ -204,7 +197,7 @@ inventory_full_sound:
 # Sound when a player opens a shulker box
 shulker_open_sound:
   enabled: true
-  sound: "BLOCK_SHULKER_BOX_OPEN"
+  sound: "UI_LOOM_TAKE_RESULT"
   volume: 0.7
   pitch: 1.0
 
