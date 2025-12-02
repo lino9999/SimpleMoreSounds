@@ -41,22 +41,3 @@ It features **Smart Detection** for chat mentions and private messages (compatib
    <p>I've just launched https://www.hytaleservers.it/</p>
    <p>Are you working on a server? List it now for free and build your audience before launch.​</p>
 </div>
-
----
-
-## ⚙️ Configuration
-Every single sound can be toggled, and you can adjust the **Volume** and **Pitch** to your liking in `config.yml`.
-
-```yaml
-# Example Configuration
-critical_hit_sound:
-  enabled: true
-  sound: "BLOCK_ENCHANTMENT_TABLE_USE"
-  volume: 1.0
-  pitch: 1.2
-
-chat_sound:
-  enabled: true
-  sound: "ENTITY_ITEM_PICKUP"
-  volume: 0.5
-  pitch: 1.0
