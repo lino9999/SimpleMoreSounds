@@ -1,16 +1,55 @@
-SimpleMoreSounds - The ultimate audio enhancement plugin that transforms your Minecraft server into an immersive soundscape. With 28 fully customizable sound events, this plugin adds rich audio feedback to virtually every player interaction, creating a more engaging and atmospheric gameplay experience.
+# 🔊 SimpleMoreSounds - Immersive Audio Overhaul (1.21+)
 
-Play sounds when:
-Chat & Social: Chat messages, player mentions, private messages (vanilla + EssentialsX)
-Player Actions: Item drops, hotbar switching, inventory management, teleportation
-Combat System: Critical hits, mob/player kills, arrow shooting, tool breaking
-World Interactions: Furnace, crafting table, anvil, enchanting table usage
-Fishing Activities: Casting and catching sounds with state detection
-Server Events: Join/quit sounds, first-time player welcomes, death notifications
-Progression: Experience gain, advancement completion, respawn effects
-and more!
-⚙️ Advanced Configuration:
+> **Transform your server into a living, breathing world with rich audio feedback.**
+> SimpleMoreSounds adds customizable sound effects to 25+ events, from chat mentions to critical hits.
+> **Lightweight, Lag-free, and Fully Configurable.**
 
-Individual Control: Enable/disable any sound independently
-Audio Customization: Adjust volume (0.0-1.0) and pitch (0.5-2.0) per event
-Smart Detection: Intelligent mention system and private message recognition
+![Java](https://img.shields.io/badge/Java-21-orange) ![Spigot](https://img.shields.io/badge/API-1.21-yellow) ![License](https://img.shields.io/badge/License-MIT-blue)
+
+---
+
+## 🎧 Why SimpleMoreSounds?
+Minecraft can be too quiet. **SimpleMoreSounds** fills the silence by adding satisfying audio cues to player actions. Whether it's the click of a hotbar switch or the thunder of a PvP kill, every action feels more impactful.
+
+It features **Smart Detection** for chat mentions and private messages (compatible with EssentialsX and Vanilla commands).
+
+### ✨ Key Features
+
+* **💬 Social & Chat Sounds**
+    * **Mentions:** Plays a chime when a player's name is tagged in chat (Smart Regex detection).
+    * **Private Messages:** Unique sounds for `/msg`, `/tell`, and `/whisper`.
+    * **Typing:** Optional subtle sound when players send messages.
+
+* **⚔️ Combat & Action**
+    * **Critical Hits:** Satisfying crunch sound when landing a crit.
+    * **Kill Confirmations:** Distinct sounds for Mob kills vs Player kills.
+    * **Bow Shooting:** High-tension bow release sounds.
+
+* **🌍 World Interaction**
+    * **Crafting & blocks:** Sounds for opening Furnaces, Crafting Tables, Anvils, and Enchanting Tables.
+    * **Fishing:** Audio cues for casting and catching fish.
+    * **Tools:** Warning sound when a tool is about to break (or breaks).
+
+* **🎒 UI & Inventory**
+    * Hotbar switching clicks.
+    * Inventory open/close sounds.
+    * "Inventory Full" warning sound when picking up items.
+
+---
+
+## ⚙️ Configuration
+Every single sound can be toggled, and you can adjust the **Volume** and **Pitch** to your liking in `config.yml`.
+
+```yaml
+# Example Configuration
+critical_hit_sound:
+  enabled: true
+  sound: "BLOCK_ENCHANTMENT_TABLE_USE"
+  volume: 1.0
+  pitch: 1.2
+
+chat_sound:
+  enabled: true
+  sound: "ENTITY_ITEM_PICKUP"
+  volume: 0.5
+  pitch: 1.0
