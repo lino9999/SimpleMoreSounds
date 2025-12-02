@@ -53,3 +53,14 @@ chat_sound:
   sound: "ENTITY_ITEM_PICKUP"
   volume: 0.5
   pitch: 1.0
+
+
+
+---
+
+<div align="center">
+   <p>I've just launched https://www.hytaleservers.it/</p>
+   <p>Are you working on a server? List it now for free and build your audience before launch.​</p>
+</div>
+
+---
