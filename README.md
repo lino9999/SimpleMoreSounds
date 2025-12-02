@@ -37,6 +37,13 @@ It features **Smart Detection** for chat mentions and private messages (compatib
 
 ---
 
+<div align="center">
+   <p>I've just launched https://www.hytaleservers.it/</p>
+   <p>Are you working on a server? List it now for free and build your audience before launch.​</p>
+</div>
+
+---
+
 ## ⚙️ Configuration
 Every single sound can be toggled, and you can adjust the **Volume** and **Pitch** to your liking in `config.yml`.
 
@@ -53,14 +60,3 @@ chat_sound:
   sound: "ENTITY_ITEM_PICKUP"
   volume: 0.5
   pitch: 1.0
-
-
-
----
-
-<div align="center">
-   <p>I've just launched https://www.hytaleservers.it/</p>
-   <p>Are you working on a server? List it now for free and build your audience before launch.​</p>
-</div>
-
----
